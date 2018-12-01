@@ -1,0 +1,62 @@
+---
+- name: Add latest stable nginx repository
+  apt_repository:
+    repo='ppa:nginx/stable'
+  when: webserver_nginx_enable_ppa_version | default(false)
+
+- name: Installs nginx web server
+  apt: pkg=nginx state=installed update_cache=true
+  notify:
+    - start_nginx
+
+- name: Installing the nginx.conf template
+  template:
+    src=nginx.conf.j2
+    dest=/etc/nginx/nginx.conf
+  when: webserver_nginx_config_enable | default(false)
+
+- name: Disable Default Nginx application/page
+  file:
+    path=/etc/nginx/{{ item }}/default
+    state=absent
+  with_items:
+   - sites-available
+   - sites-enabled
+  notify:
+   - restart_nginx
+  when: webserver_nginx_default_app_disable|default(true)
+
+- name: Remove nginx Default page
+  file:
+    path=/usr/share/nginx/html/*
+    state=absent
+  notify:
+   - restart_nginx
+  when: webserver_nginx_default_app_disable|default(true)
+
+- include: http_vhost.yml
+  when: http_vhost_enable|default(false)
+
+- name: Starting Nginx
+  service:
+    name=nginx
+    state=started
+  when: nginx_generic_start_enabled | default(false)
+
+- name: Restaring Nginx
+  service:
+    name=nginx
+    state=restarted
+  when: nginx_generic_restart_enabled | default(false)
+
+- name: Stopping Nginx
+  service:
+    name=nginx
+    state=stopped
+  when: nginx_generic_stop_enabled | default(false)
+
+- name: Reload Nginx
+  service:
+    name=nginx
+    state=reload
+  when: nginx_generic_reload_enabled | default(false)

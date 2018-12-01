@@ -1,0 +1,10 @@
+---
+- hosts: test
+  become: true
+  roles:
+    - nginx
+  vars:
+    webserver_nginx_enable_ppa_version: true
+    http_vhost_enable: true
+    webserver_nginx_default_app_disable: true
+    nginx_generic_restart_enabled: true

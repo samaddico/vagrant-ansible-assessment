@@ -1,0 +1,39 @@
+---
+- name: Add latest stable HAProxy repository
+  apt_repository:
+    repo='ppa:vbernat/haproxy-1.8'
+  when: haproxy_ppa_version_enable | default(false)
+
+- name: Installing HAProxy
+  apt:
+    name=haproxy
+    state=latest
+    update_cache=true
+  when: haproxy_install_enable | default(false)
+
+- name: Overriding HAProxy Configuration
+  template:
+    src: "{{item.value.src_file}}"
+    dest: "{{item.value.dest_file}}"
+    mode: 0644
+    validate: haproxy -f %s -c -q
+  when: haproxy_override_config_details is defined
+  with_dict: "{{ haproxy_override_config_details }}"
+
+- name: Stopping HAproxy services
+  service:
+    name=haproxy
+    state=stopped
+  when: haproxy_service_stop  | default(false)
+
+- name: Starting HAproxy services
+  service:
+    name=haproxy
+    state=started
+  when: haproxy_service_start | default(false)
+
+- name: Restarting HAproxy services
+  service:
+    name=haproxy
+    state=restarted
+  when: haproxy_service_restart | default(false)

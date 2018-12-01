@@ -1,0 +1,30 @@
+---
+- name: Create Vhost Folder
+  file:
+    path=/usr/share/nginx/html/vhosts/{{ webserver_nginx_app_domain }}
+    state=directory
+    recurse=yes
+    mode=0755
+
+- name: Upload html file
+  copy:
+    src=index.html
+    dest=/usr/share/nginx/html/vhosts/{{ webserver_nginx_app_domain }}
+    mode=0644
+
+- name: Deploying Http Vhost configuration
+  template:
+    src=http_vhost.conf.j2
+    dest=/etc/nginx/sites-available/{{ webserver_nginx_app_domain }}.conf
+    mode=0644
+  when: webserver_nginx_app_domain is defined  
+
+- name: Enable Nginx Host
+  file:
+    src="/etc/nginx/sites-available/{{ webserver_nginx_app_domain }}.conf"
+    dest="/etc/nginx/sites-enabled/{{ webserver_nginx_app_domain }}.conf"
+    state=link
+    force=yes
+  when: webserver_nginx_app_domain is defined
+  notify: restart_nginx
+    

@@ -1,0 +1,30 @@
+---
+- hosts: test
+  remote_user: vagrant
+  become: true
+  roles:
+    - haproxy
+  vars:
+    haproxy_frontend_name: haproxy-frontend
+    haproxy_backend_name:  haproxy-backend
+    haproxy_install_enable: true
+    haproxy_override_config_details:
+      default:
+        src_file: "haproxy.cfg.j2"
+        dest_file: "/etc/haproxy/haproxy.cfg"
+        setup:
+        - first: "frontend {{ haproxy_frontend_name }}"
+          instructions:
+          - "bind *:80"
+          - "stats uri /haproxy?stats"
+          - "default_backend {{ haproxy_backend_name }}"
+        - first: "backend {{ haproxy_backend_name }}"
+          instructions:
+          - "balance roundrobin"
+          - "option forwardfor"
+          - "http-request set-header X-Forwarded-Port %[dst_port]" 
+          - "http-request add-header X-Forwarded-Proto https if { ssl_fc }"
+          - "option httpchk HEAD / HTTP/1.1\r\nHost:localhost"  
+          - "server webserver1 192.168.33.10:80 check"
+          - "server webserver2 192.168.33.11:80 check"
+    haproxy_service_restart: true

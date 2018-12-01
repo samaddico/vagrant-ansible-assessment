@@ -1,0 +1,15 @@
+---
+- hosts: webservers
+  become: true
+  roles:
+    - nginx
+  vars_files:
+    - ../playbook_vars/server_provisioning_vars.yml  
+
+- hosts: loadbalancer
+  become: true
+  roles:
+    - haproxy
+  vars_files:
+    - ../playbook_vars/server_provisioning_vars.yml
+       

@@ -1,0 +1,15 @@
+server {
+  listen         {{ webserver_nginx_port|default(80) }};
+  server_name    {{ webserver_nginx_app_domain }};
+
+  access_log /var/log/nginx/{{ webserver_nginx_app_domain }}_access.log;
+  error_log  /var/log/nginx/{{ webserver_nginx_app_domain }}_error.log {{ webserver_nginx_app_error_log_level|default("warn") }};
+
+  root /usr/share/nginx/html/vhosts/{{ webserver_nginx_app_domain }};
+  index index.html index.htm;
+
+  location ~* \.(jpg|jpeg|gif|css|png|js|ico)$ {
+    access_log off;
+    expires max;
+  }
+}

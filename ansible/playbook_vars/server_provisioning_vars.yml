@@ -1,0 +1,29 @@
+webserver_nginx_enable_ppa_version: true
+http_vhost_enable: true
+nginx_generic_restart_enabled: true
+webserver_nginx_default_app_disable: true
+haproxy_ppa_version_enable: true
+haproxy_frontend_name: haproxy-frontend
+haproxy_backend_name: haproxy-backend
+haproxy_install_enable: true
+haproxy_service_restart: true
+haproxy_override_config_details:
+  default:
+    src_file: haproxy.cfg.j2
+    dest_file: /etc/haproxy/haproxy.cfg
+    setup:
+      - first: "frontend {{ haproxy_frontend_name }}"
+        instructions:
+          - "bind *:80"
+          - "mode http"
+          - "stats uri /haproxy?stats"
+          - "default_backend {{ haproxy_backend_name }}"
+      - first: "backend {{ haproxy_backend_name }}"
+        instructions:
+          - "balance roundrobin"
+          - "option forwardfor" 
+          - 'option httpchk HEAD / HTTP/1.1\r\nHost:localhost'  
+          - "http-request set-header X-Forwarded-Port %[dst_port]" 
+          - "http-request add-header X-Forwarded-Proto https if { ssl_fc }"
+          - "server webserver1 192.168.33.111:80 check"
+          - "server webserver2 192.168.33.112:80 check"
