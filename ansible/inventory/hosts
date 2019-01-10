@@ -1,6 +1,6 @@
 [loadbalancer]
-192.168.33.110
+your_ip
 
 [webservers]
-192.168.33.111  webserver_nginx_app_domain="web1.nginx.local"
-192.168.33.112  webserver_nginx_app_domain="web2.nginx.local"
+your_ip  webserver_nginx_app_domain="web1.nginx.local"
+your_ip  webserver_nginx_app_domain="web2.nginx.local"
