@@ -25,5 +25,5 @@ haproxy_override_config_details:
           - 'option httpchk HEAD / HTTP/1.1\r\nHost:localhost'  
           - "http-request set-header X-Forwarded-Port %[dst_port]" 
           - "http-request add-header X-Forwarded-Proto https if { ssl_fc }"
-          - "server webserver1 192.168.33.111:80 check"
-          - "server webserver2 192.168.33.112:80 check"
+          - "server webserver1 server1_ip_here:80 check"
+          - "server webserver2 server2_ip_here:80 check"
